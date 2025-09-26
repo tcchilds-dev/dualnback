@@ -11,6 +11,14 @@ clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 80)
 level_active = False
 
+round_duration = 3000 # total length of round in ms
+flash_duration = 500 # how long the block is visible in ms
+
+round_count = 0
+round_start = pygame.time.get_ticks()
+show_block = True
+current_pos = None
+
 class Grid:
     grid_top_left = pygame.Surface((140,140))
     grid_top_left.fill(pygame.Color("white"))
@@ -117,25 +125,42 @@ while True:
             pygame.quit()
             sys.exit()
     
-    if level_active:
-        ...
-    else:
-        if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_RETURN):
+    if not level_active and event.type == pygame.KEYDOWN:
+        if event.key in (pygame.K_SPACE, pygame.K_RETURN):
             level_active = True
+            round_count = 0
+            round_start = pygame.time.get_ticks()
+            show_block = True
+            # pick first position
+            current_pos = random.choice([...])
     
-    if level_active: # playing a level
-        Grid.draw()
+    if level_active:
+        now = pygame.time.get_ticks()
+        elapsed = now - round_start
+
+        if elapsed < flash_duration:
+            # phase 1: block visible
+            Grid.draw()
+            # draw the current_pos block highlighted
+            ...
+        else:
+            # phase 2: hide block
+            Grid.draw()
+        
+        if elapsed >= round_duration:
+            # advance to next round
+            round_count += 1
+            round_start = now
+            show_block = True
+            # pick a new position for next round
+            current_pos = random.choice([...])
+
         level_text.draw()
         posbtn.draw()
         sndbtn.draw()
-
-        print(pygame.mouse.get_pos())
-
+        print(pygame.mouse.get_pos()) # just for testing
         pygame.display.update()
         clock.tick(60)
-    else: # menu between levels
-        for event in pygame.event.get():
-            if event.type == K_SPACE:
-                level_active = True
 
 
+# Make flash class and put current_pos and show_block inside
