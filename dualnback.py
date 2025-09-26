@@ -1,8 +1,15 @@
 import pygame
-from pygame.locals import *
+from pygame.locals import * # type: ignore
 import random
 from pygame.math import Vector2
 import sys
+
+pygame.init()
+
+DISPLAYSURF = pygame.display.set_mode((800,800))
+clock = pygame.time.Clock()
+game_font = pygame.font.Font(None, 80)
+level_active = False
 
 class Grid:
     grid_top_left = pygame.Surface((140,140))
@@ -32,37 +39,76 @@ class Grid:
     grid_bot_right = pygame.Surface((140,140))
     grid_bot_right.fill(pygame.Color("white"))
 
-class GameButton:
-    ...
+    @staticmethod
+    def draw():
+        DISPLAYSURF.blit(Grid.grid_top_left, (170,80))
+        DISPLAYSURF.blit(Grid.grid_top_center, (330,80))
+        DISPLAYSURF.blit(Grid.grid_top_right, (490,80))
+        DISPLAYSURF.blit(Grid.grid_mid_left, (170,240))
+        DISPLAYSURF.blit(Grid.grid_mid_center, (330,240))
+        DISPLAYSURF.blit(Grid.grid_mid_right, (490,240))
+        DISPLAYSURF.blit(Grid.grid_bot_left, (170,400))
+        DISPLAYSURF.blit(Grid.grid_bot_center, (330,400))
+        DISPLAYSURF.blit(Grid.grid_bot_right, (490,400))
 
-class Main:
-    ...
+class PositionButton:
 
-pygame.init()
+    def __init__(self, color="white", text_color="black"):
+        self.surface = pygame.Surface((340,200))
+        self.color = self.surface.fill(pygame.Color(color))
+        self.text = game_font.render("POSITION", True, text_color)
+        self.rect = self.text.get_rect(center = (200,675))
 
-DISPLAYSURF = pygame.display.set_mode((800,800))
-clock = pygame.time.Clock()
-game_font = pygame.font.Font(None, 80)
-game_active = True
-grid = Grid()
+    def draw(self):
+        DISPLAYSURF.blit(self.surface, (30, 575))
+        DISPLAYSURF.blit(self.text, self.rect)
+
+class SoundButton:
+    
+    def __init__(self, color="white", text_color="black"):
+        self.surface = pygame.Surface((340,200))
+        self.color = self.surface.fill(pygame.Color(color))
+        self.text = game_font.render("SOUND", True, text_color)
+        self.rect = self.text.get_rect(center = (600,675))
+
+    def draw(self):
+        DISPLAYSURF.blit(self.surface, (430, 575))
+        DISPLAYSURF.blit(self.text, self.rect)
+
+class LevelText:
+
+    def __init__(self, font=game_font, text="n = 1", color=(255,255,255)):
+        self.font = font 
+        self._text = text
+        self._color = color
+        self.surface = font.render(self._text, True, self._color)
+        self.rect = self.surface.get_rect(center = (400,50))
+
+    @property
+    def text(self):
+        return self._text
+    
+    @text.setter
+    def text(self, new_string):
+        self._text = new_string
+    
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_value):
+        self._color = new_value
+
+    def draw(self):
+        DISPLAYSURF.blit(level_text.surface, level_text.rect)
 
 """ SCREEN_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(SCREEN_UPDATE, 100) """
 
-level_surface = game_font.render("n = 1", True, (255,255,255))
-level_surface_rect = level_surface.get_rect(center = (400,50))
-
-position_btn = pygame.Surface((340,200))
-position_btn.fill(pygame.Color("white"))
-position_text = game_font.render("POSITION", True, (0,0,0))
-position_text_rect = position_text.get_rect(center = (200,675))
-
-sound_btn = pygame.Surface((340,200))
-sound_btn.fill(pygame.Color("white"))
-sound_text = game_font.render("SOUND", True, (0,0,0))
-sound_text_rect = sound_text.get_rect(center = (600,675))
-
-main_game = Main()
+level_text = LevelText()
+posbtn = PositionButton()
+sndbtn = SoundButton()
 
 # Game loop
 while True:
@@ -71,29 +117,17 @@ while True:
             pygame.quit()
             sys.exit()
     
-    if game_active:
+    if level_active:
         ...
     else:
         if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_RETURN):
-            game_active = True
+            level_active = True
     
-    if game_active: # playing a level
-        DISPLAYSURF.blit(grid.grid_top_left, (170,80))
-        DISPLAYSURF.blit(grid.grid_top_center, (330,80))
-        DISPLAYSURF.blit(grid.grid_top_right, (490,80))
-        DISPLAYSURF.blit(grid.grid_mid_left, (170,240))
-        DISPLAYSURF.blit(grid.grid_mid_center, (330,240))
-        DISPLAYSURF.blit(grid.grid_mid_right, (490,240))
-        DISPLAYSURF.blit(grid.grid_bot_left, (170,400))
-        DISPLAYSURF.blit(grid.grid_bot_center, (330,400))
-        DISPLAYSURF.blit(grid.grid_bot_right, (490,400))
-
-        DISPLAYSURF.blit(level_surface, level_surface_rect)
-
-        DISPLAYSURF.blit(position_btn, (30, 575))
-        DISPLAYSURF.blit(position_text, position_text_rect)
-        DISPLAYSURF.blit(sound_btn, (430, 575))
-        DISPLAYSURF.blit(sound_text, sound_text_rect)
+    if level_active: # playing a level
+        Grid.draw()
+        level_text.draw()
+        posbtn.draw()
+        sndbtn.draw()
 
         print(pygame.mouse.get_pos())
 
@@ -102,6 +136,6 @@ while True:
     else: # menu between levels
         for event in pygame.event.get():
             if event.type == K_SPACE:
-                game_active = True
+                level_active = True
 
 
