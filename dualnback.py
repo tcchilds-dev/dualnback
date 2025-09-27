@@ -69,7 +69,7 @@ class Flash:
                  (170,240), (330,240), (490,240),
                  (170,400), (330,400), (490,400)]
     current_pos = random.choice(positions)
-    letters = ["C", "H", "9", "L", "Q", "X", "S", "T"]
+    letters = ["C", "H", "B", "L", "Q", "X", "S", "T"]
     current_letter = random.choice(letters)
 
     @staticmethod
@@ -93,25 +93,52 @@ class PositionButton:
 
     def __init__(self, color="white", text_color="black"):
         self.surface = pygame.Surface((340,200))
-        self.color = self.surface.fill(pygame.Color(color))
+        self.base_color = pygame.Color(color)
+        self.text_color = text_color
+        self.surfrect = self.surface.get_rect(center = (200,675))
         self.text = game_font.render("POSITION", True, text_color)
-        self.rect = self.text.get_rect(center = (200,675))
+        self.text_rect = self.text.get_rect(center = (200,675))
+        self.pressed = False
+        self.hovered = False
+
+    def update(self, mouse_pos):
+        if self.pressed == True:
+            self.surface.fill(pygame.Color("green")) # clicked color
+        elif self.surfrect.collidepoint(mouse_pos):
+            self.surface.fill(pygame.Color("lightgrey")) # hover color
+        else:
+            self.surface.fill(self.base_color)
+            self.hovered = False
 
     def draw(self):
-        DISPLAYSURF.blit(self.surface, (30, 575))
-        DISPLAYSURF.blit(self.text, self.rect)
+        DISPLAYSURF.blit(self.surface, self.surfrect)
+        DISPLAYSURF.blit(self.text, self.text_rect)
 
 class SoundButton:
     
     def __init__(self, color="white", text_color="black"):
         self.surface = pygame.Surface((340,200))
-        self.color = self.surface.fill(pygame.Color(color))
+        self.base_color = pygame.Color(color)
+        self.text_color = text_color
+        self.surfrect = self.surface.get_rect(center = (600,675))
         self.text = game_font.render("SOUND", True, text_color)
-        self.rect = self.text.get_rect(center = (600,675))
+        self.text_rect = self.text.get_rect(center = (600,675))
+        self.pressed = False
+        self.hovered = False
+    
+    def update(self, mouse_pos):
+        if self.pressed == True:
+            self.surface.fill(pygame.Color("green"))
+        elif self.surfrect.collidepoint(mouse_pos):
+            self.surface.fill(pygame.Color("lightgrey"))
+            self.hovered = True
+        else:
+            self.surface.fill(pygame.Color(self.base_color))
+            self.hovered = False
 
     def draw(self):
-        DISPLAYSURF.blit(self.surface, (430, 575))
-        DISPLAYSURF.blit(self.text, self.rect)
+        DISPLAYSURF.blit(self.surface, self.surfrect)
+        DISPLAYSURF.blit(self.text, self.text_rect)
 
 class LevelText:
 
@@ -146,6 +173,7 @@ posbtn = PositionButton()
 sndbtn = SoundButton()
 sound_played = False
 
+
 # Game loop
 while True:
     for event in pygame.event.get():
@@ -153,7 +181,18 @@ while True:
             sound.endLoop()
             pygame.quit()
             sys.exit()
+            
+    mouse_pos= pygame.mouse.get_pos()
     
+    posbtn.update(mouse_pos)
+    sndbtn.update(mouse_pos)
+
+    if level_active and event.type == pygame.MOUSEBUTTONDOWN:
+            if posbtn.surfrect.collidepoint(event.pos):
+                posbtn.pressed = True
+            if sndbtn.surfrect.collidepoint(event.pos):
+                sndbtn.pressed = True
+
     if not level_active and event.type == pygame.KEYDOWN:
         if event.key in (pygame.K_SPACE, pygame.K_RETURN): 
             level_active = True
@@ -183,6 +222,8 @@ while True:
             Flash.set_pos()
             Flash.set_letter()
             sound_played = False
+            posbtn.pressed = False
+            sndbtn.pressed = False
 
         level_text.draw()
         posbtn.draw()
