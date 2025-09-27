@@ -1,10 +1,15 @@
 import pygame
 from pygame.locals import * # type: ignore
-import random
 from pygame.math import Vector2
+import pyttsx3
+import random
 import sys
 
 pygame.init()
+
+sound = pyttsx3.init()
+sound.setProperty("rate", 120)
+sound.startLoop(False)
 
 DISPLAYSURF = pygame.display.set_mode((800,800))
 clock = pygame.time.Clock()
@@ -16,8 +21,6 @@ flash_duration = 500 # how long the block is visible in ms
 
 round_count = 0
 round_start = pygame.time.get_ticks()
-show_block = True
-current_pos = None
 
 class Grid:
     grid_top_left = pygame.Surface((140,140))
@@ -58,6 +61,33 @@ class Grid:
         DISPLAYSURF.blit(Grid.grid_bot_left, (170,400))
         DISPLAYSURF.blit(Grid.grid_bot_center, (330,400))
         DISPLAYSURF.blit(Grid.grid_bot_right, (490,400))
+
+class Flash:
+    surface = pygame.Surface((140,140))
+    surface.fill(pygame.Color("red"))
+    positions = [(170,80), (330,80), (490,80),
+                 (170,240), (330,240), (490,240),
+                 (170,400), (330,400), (490,400)]
+    current_pos = random.choice(positions)
+    letters = ["C", "H", "K", "L", "Q", "R", "S", "T"]
+    current_letter = random.choice(letters)
+
+    @staticmethod
+    def set_pos():
+        Flash.current_pos = random.choice(Flash.positions)
+    
+    @staticmethod
+    def draw():
+        DISPLAYSURF.blit(Flash.surface, Flash.current_pos)
+
+    @staticmethod
+    def set_letter():
+        Flash.current_letter = random.choice(Flash.letters)
+
+    @staticmethod
+    def say_letter(letter):
+        sound.say(letter)
+        sound.iterate()
 
 class PositionButton:
 
@@ -117,16 +147,18 @@ pygame.time.set_timer(SCREEN_UPDATE, 100) """
 level_text = LevelText()
 posbtn = PositionButton()
 sndbtn = SoundButton()
+sound_played = False
 
 # Game loop
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
+            sound.endLoop()
             pygame.quit()
             sys.exit()
     
     if not level_active and event.type == pygame.KEYDOWN:
-        if event.key in (pygame.K_SPACE, pygame.K_RETURN):
+        if event.key in (pygame.K_SPACE, pygame.K_RETURN): 
             level_active = True
             round_count = 0
             round_start = pygame.time.get_ticks()
@@ -141,8 +173,10 @@ while True:
         if elapsed < flash_duration:
             # phase 1: block visible
             Grid.draw()
-            # draw the current_pos block highlighted
-            ...
+            Flash.draw()
+            if not sound_played:
+                Flash.say_letter(Flash.current_letter)
+                sound_played = True
         else:
             # phase 2: hide block
             Grid.draw()
@@ -151,16 +185,15 @@ while True:
             # advance to next round
             round_count += 1
             round_start = now
-            show_block = True
             # pick a new position for next round
-            current_pos = random.choice([...])
+            Flash.set_pos()
+            Flash.set_letter()
+            sound_played = False
 
         level_text.draw()
         posbtn.draw()
         sndbtn.draw()
         print(pygame.mouse.get_pos()) # just for testing
+        sound.iterate()
         pygame.display.update()
         clock.tick(60)
-
-
-# Make flash class and put current_pos and show_block inside
