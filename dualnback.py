@@ -69,7 +69,7 @@ class Flash:
                  (170,240), (330,240), (490,240),
                  (170,400), (330,400), (490,400)]
     current_pos = random.choice(positions)
-    letters = ["C", "H", "K", "L", "Q", "R", "S", "T"]
+    letters = ["C", "H", "9", "L", "Q", "X", "S", "T"]
     current_letter = random.choice(letters)
 
     @staticmethod
@@ -141,9 +141,6 @@ class LevelText:
     def draw(self):
         DISPLAYSURF.blit(level_text.surface, level_text.rect)
 
-""" SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 100) """
-
 level_text = LevelText()
 posbtn = PositionButton()
 sndbtn = SoundButton()
@@ -162,9 +159,6 @@ while True:
             level_active = True
             round_count = 0
             round_start = pygame.time.get_ticks()
-            show_block = True
-            # pick first position
-            current_pos = random.choice([...])
     
     if level_active:
         now = pygame.time.get_ticks()
@@ -193,7 +187,6 @@ while True:
         level_text.draw()
         posbtn.draw()
         sndbtn.draw()
-        print(pygame.mouse.get_pos()) # just for testing
         sound.iterate()
         pygame.display.update()
         clock.tick(60)
