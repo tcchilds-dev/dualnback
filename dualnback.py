@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals import *
+from pygame.locals import * # type: ignore
 import random
 import sys
 import asyncio
@@ -19,7 +19,7 @@ pygame.init()
 pygame.mixer.init()
 DISPLAYSURF = pygame.display.set_mode(WINDOW_SIZE)
 background = pygame.Surface((800,800))
-background.fill(pygame.Color("black"))
+background.fill((188,201,214))
 clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 80)
 
@@ -56,7 +56,7 @@ class Grid:
         (170, 400), (330, 400), (490, 400)
     ]
     surface = pygame.Surface((cell_size, cell_size))
-    surface.fill(pygame.Color("white"))
+    surface.fill((255,251,237))
 
     @staticmethod
     def draw():
@@ -65,7 +65,7 @@ class Grid:
 
 class Flash:
     surface = pygame.Surface((140, 140))
-    surface.fill(pygame.Color("red"))
+    surface.fill((255,100,88))
     current_pos = random.choice(Grid.positions)
     current_letter = random.choice(LETTERS)
 
@@ -82,9 +82,10 @@ class Flash:
         DISPLAYSURF.blit(Flash.surface, Flash.current_pos)
 
 class Button:
-    def __init__(self, center, label, color="white", text_color="black"):
-        self.surface = pygame.Surface((340, 200))
-        self.base_color = pygame.Color(color)
+    def __init__(self, center, label, text_color=(94,100,114)):
+        self.size = (340,160)
+        self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.base_color = (250,243,221)
         self.text_color = text_color
         self.surfrect = self.surface.get_rect(center=center)
         self.text = game_font.render(label, True, text_color)
@@ -93,26 +94,73 @@ class Button:
 
     def update(self, mouse_pos):
         if self.pressed:
-            self.surface.fill(pygame.Color("green"))
+            fill_color = (184,242,230)
         elif self.surfrect.collidepoint(mouse_pos):
-            self.surface.fill(pygame.Color("lightgrey"))
+            fill_color = (255,252,244)
         else:
-            self.surface.fill(self.base_color)
+            fill_color = self.base_color
+        
+        # Clear surface
+        self.surface.fill((0,0,0,0))
+        
+        rect = self.surface.get_rect()
+
+        # --- Draw main rounded rect ---
+        pygame.draw.rect(
+            self.surface,
+            fill_color,
+            rect,
+            border_radius=50
+        )
 
     def draw(self):
         DISPLAYSURF.blit(self.surface, self.surfrect)
         DISPLAYSURF.blit(self.text, self.text_rect)
 
+class StartButton:
+    def __init__(self, center, label, text_color=(94,100,114)):
+        self.size = (340,160)
+        self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.base_color = (250,243,221)
+        self.text_color = text_color
+        self.surfrect = self.surface.get_rect(center=center)
+        self.text = game_font.render(label, True, text_color)
+        self.text_rect = self.text.get_rect(center=center)
+    
+    def update(self, mouse_pos):
+        if self.surfrect.collidepoint(mouse_pos):
+            fill_color = (255,252,244)
+        else:
+            fill_color = self.base_color
+        
+        # Clear surface
+        self.surface.fill((0,0,0,0))
+        
+        rect = self.surface.get_rect()
+        
+        # --- Draw main rounded rect ---
+        pygame.draw.rect(
+            self.surface,
+            fill_color,
+            rect,
+            border_radius=50
+        )
+    
+    def draw(self):
+        DISPLAYSURF.blit(self.surface, self.surfrect)
+        DISPLAYSURF.blit(self.text, self.text_rect)
+
 class LevelText:
-    def __init__(self, text="n = 1", color=(255,255,255)):
+    def __init__(self, text="n = 1", color=(94,100,114)):
         self.font = game_font
         self._text = text
         self._color = color
         self.surface = self.font.render(self._text, True, self._color)
-        self.rect = self.surface.get_rect(center=(400, 50))
+        self.rect = self.surface.get_rect(center=(400, 40))
 
     @property
     def text(self): return self._text
+
     @text.setter
     def text(self, new_string):
         self._text = new_string
@@ -122,7 +170,31 @@ class LevelText:
         DISPLAYSURF.blit(self.surface, self.rect)
 
 class ScoreBoard:
-    ...
+    def __init__(self, text, center_pos=(0,0), color=(94,100,114)):
+        self.font = pygame.font.Font(None, 50)
+        self._text = text
+        self._color = color
+        self.surface = self.font.render(self._text, True, self._color)
+        self.rect = self.surface.get_rect(center=center_pos)
+    
+    @property
+    def text(self): return self._text
+
+    @text.setter
+    def text(self, new_string):
+        self._text = new_string
+        self.surface = self.font.render(self._text, True, self._color)
+    
+    @property
+    def color(self): return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color = new_color
+        self.surface = self.font.render(self._text, True, self._color)
+
+    def draw(self):
+        DISPLAYSURF.blit(self.surface, self.rect)
 
 # -------------------- MAIN GAME --------------------
 def main():
@@ -141,13 +213,18 @@ def main():
     # --- Score ---
     pos_history = []
     letter_history = []
-    correct = 0
-    missed = 0
-    mistakes = 0
+    correct: int = 0
+    missed: int = 0
+    mistakes: int = 0
 
     # --- UI ---
-    posbtn = Button((200, 675), "POSITION")
-    sndbtn = Button((600, 675), "SOUND")
+    correct_text = ScoreBoard(f"Correct: {correct}", (400,160))
+    missed_text = ScoreBoard(f"Missed: {missed}", (400,240))
+    mistakes_text = ScoreBoard(f"Mistakes: {mistakes}", (400,320))
+    result_text = ScoreBoard("", (335,440))
+    strtbtn = StartButton((400,675), "Start")
+    posbtn = Button((200,675), "POSITION")
+    sndbtn = Button((600,675), "SOUND")
     level_text = LevelText(f"n = {level}")
 
     while True:
@@ -177,12 +254,23 @@ def main():
                 if sndbtn.surfrect.collidepoint(event.pos):
                     sndbtn.pressed = True
 
+        # --- Mouse hover ---
         mouse_pos = pygame.mouse.get_pos()
         posbtn.update(mouse_pos)
         sndbtn.update(mouse_pos)
+        strtbtn.update(mouse_pos)
 
         # --- Draw background ---
         DISPLAYSURF.blit(background, (0,0))
+
+        # -- Results mode ---
+        if not level_active:
+            correct_text.draw()
+            missed_text.draw()
+            mistakes_text.draw()
+            level_text.draw()
+            result_text.draw()
+            strtbtn.draw()
 
         # --- Level ---
         if level_active:
@@ -238,8 +326,12 @@ def main():
                     print(f"Correct: {correct}\nMissed: {missed}\nMistakes: {mistakes}")
                     if correct >= ((correct + missed)*0.8) and mistakes < 4:
                         level += 1
+                        result_text.text = "PASSED".strip()
+                        result_text.color = pygame.Color("green")
                         print("Proceeding to next level.")
                     else:
+                        result_text.text = "FAILED".strip()
+                        result_text.color = pygame.Color("red")
                         print("Score not high enough to proceed.")
                     rounds_in_level = level + 20
                     level_text.text = f"n = {level}"
