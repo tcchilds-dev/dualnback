@@ -14,12 +14,25 @@ LETTERS = ["C", "H", "K", "L", "Q", "R", "S", "T"]  # Jaeggi set
 VOICE = "en-US-JennyNeural"
 SPEECH_FOLDER = "speech_cache"
 
+# -------------------- THEME --------------------
+tokyo_black = (36,40,59)
+tokyo_darker = (32,35,51)
+tokyo_charcoal = (20,22,31)
+tokyo_grey = (64,69,91)
+tokyo_button_grey = (48,52,69)
+tokyo_yellow = (224,175,104)
+tokyo_red = (247,118,142)
+tokyo_green = (158,206,106)
+tokyo_indigo = (122,162,247)
+tokyo_purple = (187,154,247)
+tokyo_blue = (113,146,166)
+
 # -------------------- INIT --------------------
 pygame.init()
 pygame.mixer.init()
 DISPLAYSURF = pygame.display.set_mode(WINDOW_SIZE)
 background = pygame.Surface((800,800))
-background.fill((188,201,214))
+background.fill((tokyo_black))
 clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 80)
 
@@ -56,7 +69,7 @@ class Grid:
         (170, 400), (330, 400), (490, 400)
     ]
     surface = pygame.Surface((cell_size, cell_size))
-    surface.fill((255,251,237))
+    surface.fill((tokyo_grey))
 
     @staticmethod
     def draw():
@@ -65,7 +78,7 @@ class Grid:
 
 class Flash:
     surface = pygame.Surface((140, 140))
-    surface.fill((255,100,88))
+    surface.fill((tokyo_red))
     current_pos = random.choice(Grid.positions)
     current_letter = random.choice(LETTERS)
 
@@ -82,10 +95,10 @@ class Flash:
         DISPLAYSURF.blit(Flash.surface, Flash.current_pos)
 
 class Button:
-    def __init__(self, center, label, text_color=(94,100,114)):
+    def __init__(self, center, label, text_color=(tokyo_charcoal)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.base_color = (250,243,221)
+        self.base_color = (tokyo_darker)
         self.text_color = text_color
         self.surfrect = self.surface.get_rect(center=center)
         self.text = game_font.render(label, True, text_color)
@@ -94,9 +107,9 @@ class Button:
 
     def update(self, mouse_pos):
         if self.pressed:
-            fill_color = (184,242,230)
+            fill_color = (tokyo_indigo)
         elif self.surfrect.collidepoint(mouse_pos):
-            fill_color = (255,252,244)
+            fill_color = (tokyo_button_grey)
         else:
             fill_color = self.base_color
         
@@ -118,10 +131,10 @@ class Button:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class StartButton:
-    def __init__(self, center, label, text_color=(94,100,114)):
+    def __init__(self, center, label, text_color=(tokyo_charcoal)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.base_color = (250,243,221)
+        self.base_color = (tokyo_darker)
         self.text_color = text_color
         self.surfrect = self.surface.get_rect(center=center)
         self.text = game_font.render(label, True, text_color)
@@ -129,7 +142,7 @@ class StartButton:
     
     def update(self, mouse_pos):
         if self.surfrect.collidepoint(mouse_pos):
-            fill_color = (255,252,244)
+            fill_color = (tokyo_button_grey)
         else:
             fill_color = self.base_color
         
@@ -151,7 +164,7 @@ class StartButton:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class LevelText:
-    def __init__(self, text="n = 1", color=(94,100,114)):
+    def __init__(self, text="n = 1", color=(tokyo_purple)):
         self.font = game_font
         self._text = text
         self._color = color
@@ -170,7 +183,7 @@ class LevelText:
         DISPLAYSURF.blit(self.surface, self.rect)
 
 class ScoreBoard:
-    def __init__(self, text, center_pos=(0,0), color=(94,100,114)):
+    def __init__(self, text, center_pos=(0,0), color=(tokyo_yellow)):
         self.font = pygame.font.Font(None, 50)
         self._text = text
         self._color = color
@@ -221,8 +234,8 @@ def main():
     correct_text = ScoreBoard(f"Correct: {correct}", (400,160))
     missed_text = ScoreBoard(f"Missed: {missed}", (400,240))
     mistakes_text = ScoreBoard(f"Mistakes: {mistakes}", (400,320))
-    result_text = ScoreBoard("", (335,440))
-    strtbtn = StartButton((400,675), "Start")
+    result_text = ScoreBoard("", (335,675))
+    strtbtn = StartButton((400,480), "Start")
     posbtn = Button((200,675), "POSITION")
     sndbtn = Button((600,675), "SOUND")
     level_text = LevelText(f"n = {level}")
@@ -236,8 +249,8 @@ def main():
                 sys.exit()
 
             # --- Begin level ---
-            if not level_active and event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_SPACE, pygame.K_RETURN):
+            if not level_active and event.type == pygame.MOUSEBUTTONDOWN:
+                if strtbtn.surfrect.collidepoint(event.pos):
                     level_active = True
                     round_count = 0
                     round_start = pygame.time.get_ticks()
@@ -324,14 +337,20 @@ def main():
                 if round_count >= rounds_in_level:
                     level_active = False
                     print(f"Correct: {correct}\nMissed: {missed}\nMistakes: {mistakes}")
+                    
+                    # --- Update scoreboard text surfaces ---
+                    correct_text.text = f"Correct: {correct}"
+                    missed_text.text = f"Missed: {missed}"
+                    mistakes_text.text = f"Mistakes: {mistakes}"
+
                     if correct >= ((correct + missed)*0.8) and mistakes < 4:
                         level += 1
                         result_text.text = "PASSED".strip()
-                        result_text.color = pygame.Color("green")
+                        result_text.color = tokyo_green
                         print("Proceeding to next level.")
                     else:
                         result_text.text = "FAILED".strip()
-                        result_text.color = pygame.Color("red")
+                        result_text.color = tokyo_red
                         print("Score not high enough to proceed.")
                     rounds_in_level = level + 20
                     level_text.text = f"n = {level}"
