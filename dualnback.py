@@ -19,8 +19,10 @@ tom_black = (36,40,59)
 tom_darker = (32,35,51)
 tom_charcoal = (20,22,31)
 tom_grey = (64,69,91)
+tom_white = (220,220,220)
 tom_button_grey = (48,52,69)
 tom_yellow = (224,175,104)
+tom_button_pressed = (52,72,111)
 tom_red = (247,118,142)
 tom_green = (158,206,106)
 tom_indigo = (122,162,247)
@@ -95,7 +97,7 @@ class Flash:
         DISPLAYSURF.blit(Flash.surface, Flash.current_pos)
 
 class Button:
-    def __init__(self, center, label, text_color=(tom_charcoal)):
+    def __init__(self, center, label, text_color=(tom_white)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.base_color = (tom_darker)
@@ -107,7 +109,7 @@ class Button:
 
     def update(self, mouse_pos):
         if self.pressed:
-            fill_color = (tom_indigo)
+            fill_color = (tom_button_pressed)
         elif self.surfrect.collidepoint(mouse_pos):
             fill_color = (tom_button_grey)
         else:
@@ -131,7 +133,7 @@ class Button:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class StartButton:
-    def __init__(self, center, label, text_color=(tom_charcoal)):
+    def __init__(self, center, label, text_color=(tom_white)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.base_color = (tom_darker)
@@ -164,7 +166,7 @@ class StartButton:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class LevelText:
-    def __init__(self, text="n = 1", color=(tom_purple)):
+    def __init__(self, text="n = 1", color=(tom_white)):
         self.font = game_font
         self._text = text
         self._color = color
@@ -183,7 +185,7 @@ class LevelText:
         DISPLAYSURF.blit(self.surface, self.rect)
 
 class ScoreBoard:
-    def __init__(self, text, center_pos=(0,0), color=(tom_yellow)):
+    def __init__(self, text, center_pos=(0,0), color=(tom_white)):
         self.font = pygame.font.Font(None, 50)
         self._text = text
         self._color = color
@@ -231,9 +233,9 @@ def main():
     mistakes: int = 0
 
     # --- UI ---
-    correct_text = ScoreBoard(f"Correct: {correct}", (400,160))
-    missed_text = ScoreBoard(f"Missed: {missed}", (400,240))
-    mistakes_text = ScoreBoard(f"Mistakes: {mistakes}", (400,320))
+    correct_text = ScoreBoard(f"Correct: {correct}", (400,160), tom_green)
+    missed_text = ScoreBoard(f"Missed: {missed}", (400,240), tom_yellow)
+    mistakes_text = ScoreBoard(f"Mistakes: {mistakes}", (400,320), tom_red)
     result_text = ScoreBoard("", (335,675))
     strtbtn = StartButton((400,480), "Start")
     posbtn = Button((200,675), "POSITION")
