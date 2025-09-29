@@ -8,7 +8,7 @@ import os
 
 # -------------------- CONFIG --------------------
 WINDOW_SIZE = (800, 800)
-ROUND_DURATION = 3000   # total length of round (ms)
+ROUND_DURATION = 2500   # total length of round (ms)
 FLASH_DURATION = 500    # how long block is visible (ms)
 LETTERS = ["C", "H", "K", "L", "Q", "R", "S", "T"]  # Jaeggi set
 VOICE = "en-US-JennyNeural"
