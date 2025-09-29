@@ -15,24 +15,24 @@ VOICE = "en-US-JennyNeural"
 SPEECH_FOLDER = "speech_cache"
 
 # -------------------- THEME --------------------
-tokyo_black = (36,40,59)
-tokyo_darker = (32,35,51)
-tokyo_charcoal = (20,22,31)
-tokyo_grey = (64,69,91)
-tokyo_button_grey = (48,52,69)
-tokyo_yellow = (224,175,104)
-tokyo_red = (247,118,142)
-tokyo_green = (158,206,106)
-tokyo_indigo = (122,162,247)
-tokyo_purple = (187,154,247)
-tokyo_blue = (113,146,166)
+tom_black = (36,40,59)
+tom_darker = (32,35,51)
+tom_charcoal = (20,22,31)
+tom_grey = (64,69,91)
+tom_button_grey = (48,52,69)
+tom_yellow = (224,175,104)
+tom_red = (247,118,142)
+tom_green = (158,206,106)
+tom_indigo = (122,162,247)
+tom_purple = (187,154,247)
+tom_blue = (113,146,166)
 
 # -------------------- INIT --------------------
 pygame.init()
 pygame.mixer.init()
 DISPLAYSURF = pygame.display.set_mode(WINDOW_SIZE)
 background = pygame.Surface((800,800))
-background.fill((tokyo_black))
+background.fill((tom_black))
 clock = pygame.time.Clock()
 game_font = pygame.font.Font(None, 80)
 
@@ -69,7 +69,7 @@ class Grid:
         (170, 400), (330, 400), (490, 400)
     ]
     surface = pygame.Surface((cell_size, cell_size))
-    surface.fill((tokyo_grey))
+    surface.fill((tom_grey))
 
     @staticmethod
     def draw():
@@ -78,7 +78,7 @@ class Grid:
 
 class Flash:
     surface = pygame.Surface((140, 140))
-    surface.fill((tokyo_red))
+    surface.fill((tom_red))
     current_pos = random.choice(Grid.positions)
     current_letter = random.choice(LETTERS)
 
@@ -95,10 +95,10 @@ class Flash:
         DISPLAYSURF.blit(Flash.surface, Flash.current_pos)
 
 class Button:
-    def __init__(self, center, label, text_color=(tokyo_charcoal)):
+    def __init__(self, center, label, text_color=(tom_charcoal)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.base_color = (tokyo_darker)
+        self.base_color = (tom_darker)
         self.text_color = text_color
         self.surfrect = self.surface.get_rect(center=center)
         self.text = game_font.render(label, True, text_color)
@@ -107,9 +107,9 @@ class Button:
 
     def update(self, mouse_pos):
         if self.pressed:
-            fill_color = (tokyo_indigo)
+            fill_color = (tom_indigo)
         elif self.surfrect.collidepoint(mouse_pos):
-            fill_color = (tokyo_button_grey)
+            fill_color = (tom_button_grey)
         else:
             fill_color = self.base_color
         
@@ -131,10 +131,10 @@ class Button:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class StartButton:
-    def __init__(self, center, label, text_color=(tokyo_charcoal)):
+    def __init__(self, center, label, text_color=(tom_charcoal)):
         self.size = (340,160)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.base_color = (tokyo_darker)
+        self.base_color = (tom_darker)
         self.text_color = text_color
         self.surfrect = self.surface.get_rect(center=center)
         self.text = game_font.render(label, True, text_color)
@@ -142,7 +142,7 @@ class StartButton:
     
     def update(self, mouse_pos):
         if self.surfrect.collidepoint(mouse_pos):
-            fill_color = (tokyo_button_grey)
+            fill_color = (tom_button_grey)
         else:
             fill_color = self.base_color
         
@@ -164,7 +164,7 @@ class StartButton:
         DISPLAYSURF.blit(self.text, self.text_rect)
 
 class LevelText:
-    def __init__(self, text="n = 1", color=(tokyo_purple)):
+    def __init__(self, text="n = 1", color=(tom_purple)):
         self.font = game_font
         self._text = text
         self._color = color
@@ -183,7 +183,7 @@ class LevelText:
         DISPLAYSURF.blit(self.surface, self.rect)
 
 class ScoreBoard:
-    def __init__(self, text, center_pos=(0,0), color=(tokyo_yellow)):
+    def __init__(self, text, center_pos=(0,0), color=(tom_yellow)):
         self.font = pygame.font.Font(None, 50)
         self._text = text
         self._color = color
@@ -346,11 +346,11 @@ def main():
                     if correct >= ((correct + missed)*0.8) and mistakes < 4:
                         level += 1
                         result_text.text = "PASSED".strip()
-                        result_text.color = tokyo_green
+                        result_text.color = tom_green
                         print("Proceeding to next level.")
                     else:
                         result_text.text = "FAILED".strip()
-                        result_text.color = tokyo_red
+                        result_text.color = tom_red
                         print("Score not high enough to proceed.")
                     rounds_in_level = level + 20
                     level_text.text = f"n = {level}"
